@@ -1,5 +1,6 @@
 import { currentWeek } from './render-current-week.js';
 import { getItemFromStorage } from './storage.js';
+import { getEventsFromServer } from './gateways.js';
 
 export {
     popup,
@@ -10,10 +11,7 @@ export {
     createPopup,
     createPopupButton,
     formFieldPopUp,
-    // weekBar
 };
-
-const weekBar = document.querySelector('.calendar__week-bar');
 
 const popup = document.querySelector('.popup-modal');
 const popupForm = document.querySelector('.popup');
@@ -37,11 +35,10 @@ const formFieldPopUp = {
 
 
 
-function createPopup(event) {
+const createPopup = async event => {
     const targetEventId = event.target.getAttribute('data-id');
-    const events = getItemFromStorage('events') || [];
 
-    if(!targetEventId) { 
+    if (!targetEventId) {
         closePopup();
         formFieldPopUp.dateFrom.value = currentWeek[event.target.dataset.day].toLocaleDateString().split('.').reverse().join('-');
         formFieldPopUp.dateTo.value = currentWeek[event.target.dataset.day].toLocaleDateString().split('.').reverse().join('-');
@@ -51,22 +48,23 @@ function createPopup(event) {
         } else if (event.target.dataset.hour == 9) {
             formFieldPopUp.timeFrom.value = `0${event.target.dataset.hour}:00`;
             formFieldPopUp.timeTo.value = `${+event.target.dataset.hour + 1}:00`;
-        } else if (event.target.dataset.hour > 9 ){
+        } else if (event.target.dataset.hour > 9) {
             formFieldPopUp.timeFrom.value = `${event.target.dataset.hour}:00`;
             formFieldPopUp.timeTo.value = `${+event.target.dataset.hour + 1}:00`;
-        }  else {
+        } else {
             formFieldPopUp.timeFrom.value = `0${event.target.dataset.hour}:00`;
             formFieldPopUp.timeTo.value = `0${+event.target.dataset.hour + 1}:00`;
         }
+
         formFieldPopUp.color.value = '#293dce';
         popup.style.display = 'block';
         deleteButton.style.visibility = 'hidden';
         return;
     }
 
-    const clickedObjEvent = events.find(event => {        
-        return targetEventId == event.id;
-    });
+    const clickedObjEvent = await getEventsFromServer() // get Event obj
+        .then(eventsList => eventsList
+            .find(event => targetEventId == event.id));
 
     formFieldPopUp.title.value = clickedObjEvent.title;
     formFieldPopUp.dateFrom.value = new Date(clickedObjEvent.dateFrom).toLocaleDateString().split('.').reverse().join('-');
@@ -83,11 +81,9 @@ function createPopup(event) {
     popup.style.display = 'block';
 
     deleteButton.dataset.id = event.target.dataset.id;
+
+    // console.log(clickedObjEvent);
 };
-
-// weekBar.addEventListener('click', createPopup);
-
-
 
 
 function createPopupButton() {
@@ -101,10 +97,10 @@ function createPopupButton() {
     } else if (date.getHours() == 9) {
         formFieldPopUp.timeFrom.value = `0${date.getHours()}:00`;
         formFieldPopUp.timeTo.value = `${date.getHours() + 1}:00`;
-    } else if (date.getHours() > 9 ){
+    } else if (date.getHours() > 9) {
         formFieldPopUp.timeFrom.value = `${date.getHours()}:00`;
         formFieldPopUp.timeTo.value = `${date.getHours() + 1}:00`;
-    }  else {
+    } else {
         formFieldPopUp.timeFrom.value = `0${date.getHours()}:00`;
         formFieldPopUp.timeTo.value = `0${date.getHours() + 1}:00`;
     }
@@ -112,17 +108,17 @@ function createPopupButton() {
     deleteButton.style.visibility = 'hidden';
 };
 
-createButton.addEventListener('click', createPopupButton); 
+createButton.addEventListener('click', createPopupButton);
 
 
 
 
 function closePopup() {
     const popupTitle = document.querySelector('.popup__header_title-input');
-    popupTitle.value= '';
+    popupTitle.value = '';
 
     const popupDescription = document.querySelector('.popup__description_text');
-    popupDescription.value= '';
+    popupDescription.value = '';
 
     const popupId = document.querySelector('.popup__id');
     popupId.value = '0';

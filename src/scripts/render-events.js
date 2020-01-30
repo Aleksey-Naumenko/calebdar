@@ -1,68 +1,68 @@
-import { setItemToStorage, getItemFromStorage } from './storage.js';
+import { getEventsFromServer } from './gateways.js';
 
 export { renderEvents, mapEvents };
 
-
-function mapEvents() {
-    const events = getItemFromStorage('events') || [];
+const mapEvents = async () => {
 
     const newEvents = [];
-    
-    events.forEach(event => {
 
-        if (new Date(event.dateFrom).getDate() !== new Date(event.dateTo).getDate()) {
+    await getEventsFromServer()
+        .then(eventsList => {
+            console.log(eventsList);
+            eventsList
+            .forEach(event => {
 
-            const firstObjectEvent = {
-                title: event.title,
-                dateFrom: event.dateFrom,
-                dateTo: new Date(
-                    new Date(event.dateFrom).getFullYear(),
-                    new Date(event.dateFrom).getMonth(),
-                    new Date(event.dateFrom).getDate(),
-                    23,
-                    59
-                    ),
-                description: event.description,
-                colorChooser: event.colorChooser,
-                id: event.id,
-            };
+                if (new Date(event.dateFrom).getDate() !== new Date(event.dateTo).getDate()) {
 
-            const secondObjectEvent = {
-                title: event.title,
-                dateFrom: new Date(
-                    new Date(event.dateTo).getFullYear(),
-                    new Date(event.dateTo).getMonth(),
-                    new Date(event.dateTo).getDate(),
-                    ),
-                dateTo: event.dateTo,
-                description: event.description,
-                colorChooser: event.colorChooser,
-                id: event.id,
-            };
-            newEvents.push(firstObjectEvent, secondObjectEvent);
+                    const firstObjectEvent = {
+                        title: event.title,
+                        dateFrom: event.dateFrom,
+                        dateTo: new Date(
+                            new Date(event.dateFrom).getFullYear(),
+                            new Date(event.dateFrom).getMonth(),
+                            new Date(event.dateFrom).getDate(),
+                            23,
+                            59
+                        ),
+                        description: event.description,
+                        colorChooser: event.colorChooser,
+                        id: event.id,
+                    };
 
-        } else {
-            newEvents.push(event);
-        }
-    });
+                    const secondObjectEvent = {
+                        title: event.title,
+                        dateFrom: new Date(
+                            new Date(event.dateTo).getFullYear(),
+                            new Date(event.dateTo).getMonth(),
+                            new Date(event.dateTo).getDate(),
+                        ),
+                        dateTo: event.dateTo,
+                        description: event.description,
+                        colorChooser: event.colorChooser,
+                        id: event.id,
+                    };
+                    newEvents.push(firstObjectEvent, secondObjectEvent);
 
-    setItemToStorage('events', newEvents);
+                } else {
+                    newEvents.push(event);
+                }
+            })});
+
     return newEvents;
 }
 
-function renderEvents() {  // display already splitted and generated new array
-    const newEvents = mapEvents();
+const renderEvents = async () => {  // display already splitted and generated new array
+    const newEvents = await mapEvents();
+        
 
     const hourBar = document.querySelectorAll('.calendar__hour-bar');
-    
+
     [...hourBar].map(hourBar => {
         const eventDiv = document.querySelector('.day-event');
-        if (hourBar.contains(eventDiv)){
+        if (hourBar.contains(eventDiv)) {
             eventDiv.remove();
         }
     });
-    
-    console.log(newEvents);
 
     return newEvents.map(event => {
         const eventDiv = document.createElement('div');
@@ -73,7 +73,7 @@ function renderEvents() {  // display already splitted and generated new array
         const dateFrom = event.dateFrom;
         const dateTo = event.dateTo;
         const description = event.description;
-        
+
         eventDiv.innerHTML = `${title}<br>
         ${new Date(dateFrom).getHours()}:${new Date(dateFrom).getMinutes()} - 
         ${new Date(dateTo).getHours()}:${new Date(dateTo).getMinutes()}<br>

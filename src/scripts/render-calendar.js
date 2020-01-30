@@ -29,5 +29,4 @@ const renderCalendar = () => {
         }
     }
     week.addEventListener('click', createPopup);
-
 }

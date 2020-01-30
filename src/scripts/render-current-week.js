@@ -26,7 +26,7 @@ const backwardSwitcherBtn = document.querySelector('.header__week-toggle_chevron
 const monthAndYear = document.querySelector('.header__current-month-year');
 
 
-const displayCurrentWeek = (week) => {
+const displayCurrentWeek = week => {
     const currentDate = new Date().getDate();
     const currentDay = new Date().getDay();
     let counterPrev = currentDay;
@@ -81,7 +81,7 @@ const switchWeekForward = forwardSwitcherBtn.addEventListener('click', forwardSw
 
 
 
-const backwardSwitcher = (currentWeek) => {
+const backwardSwitcher = currentWeek => {
     let newWeek = [...currentWeek];
 
     newWeek.map(dateOfDay => {

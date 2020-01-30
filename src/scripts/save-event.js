@@ -1,15 +1,16 @@
-import { setItemToStorage, getItemFromStorage } from './storage.js';
 import { renderEvents } from './render-events.js';
 import { popupForm, closePopup } from './create-popup.js';
+import { createEventOnServer, getEventsFromServer, updateEventOnServer } from './gateways.js';
+
 
 export { editSaveHandler };
 
-const editSaveHandler = event => {
+const editSaveHandler = async event => {
 
     event.preventDefault();
-    const events = getItemFromStorage('events') || [];
 
     const formData = [...new FormData(popupForm)];
+
     const newEvent = formData.reduce((acc, item) => {
         acc[item[0]] = item[1];
         return acc;
@@ -21,28 +22,26 @@ const editSaveHandler = event => {
     newEvent.dateTo = new Date(new Date(newEvent.dateTo).setHours(+timeTo[0], +timeTo[1]));
 
     if (newEvent.id === "0") {
-        newEvent.id = Math.floor(Math.random() * 1000);
+        // newEvent.id = Math.floor(Math.random() * 1000);
 
         if (newEvent.title == '') {
             newEvent.title = 'No Title';
         }
-        events.push(newEvent);
+        createEventOnServer(newEvent);
         
     } else {
-
-        events.map((event, index) => {
-            if (newEvent.id == event.id) {
-                events.splice(index, 1);
-            }
-            return event;
-        });
-        events.push(newEvent);
+        const events = await getEventsFromServer()
+            .then(eventsList => {
+                eventsList.map(event => {
+                    if (newEvent.id == event.id) {
+                        console.log(newEvent);
+                        updateEventOnServer(newEvent.id, newEvent);
+                    }
+                })
+            })
     }
-
-    setItemToStorage('events', events);
     closePopup();
     renderEvents();
-    console.log(events);
 }
 
 popupForm.addEventListener('submit', editSaveHandler);
