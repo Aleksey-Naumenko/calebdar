@@ -1,21 +1,22 @@
 import { renderEvents } from './render-events.js';
 import { closePopup, deleteButton } from './create-popup.js';
-import { deleteEventOnServer } from './gateways.js';
+import { deleteEvent } from './gateways.js';
 
 
 
-export { deleteEvent };
+export { deleteEv };
 
 
-function deleteEvent(e) {
+function deleteEv(e) {
 
     const parentPopup = deleteButton.closest('.popup');
     const clickedEventId = new FormData(parentPopup).get('id');
-    
-    deleteEventOnServer(clickedEventId);
+
+    deleteEvent(clickedEventId)
+        .catch(err => console.log(err.stack));
 
     renderEvents();
     closePopup();
 };
 
-deleteButton.addEventListener('click', deleteEvent);
+deleteButton.addEventListener('click', deleteEv);

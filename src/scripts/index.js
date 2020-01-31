@@ -6,10 +6,9 @@ import { closePopup, createPopup } from './create-popup.js';
 import { renderEvents } from './render-events.js';
 // import { durationValidation } from './validating-form.js';
 import { editSaveHandler } from './save-event.js';
-import { deleteEvent } from './delete-event.js';
+import { deleteEv } from './delete-event.js';
 import { durationValidation } from './validating-form.js';
 import { renderRedLine } from './redline.js';
-import { setItemToStorage, getItemFromStorage } from './storage.js';
 
 
 

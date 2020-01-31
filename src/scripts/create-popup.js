@@ -1,5 +1,5 @@
 import { currentWeek } from './render-current-week.js';
-import { getOneEventFromServer } from './gateways.js';
+import { fetchEvent } from './gateways.js';
 
 export {
     popup,
@@ -61,7 +61,7 @@ const createPopup = event => {
         return;
     }
 
-    getOneEventFromServer(targetEventId)
+    fetchEvent(targetEventId)
         .then(clickedObjEvent => {
             formFieldPopUp.title.value = clickedObjEvent.title;
             formFieldPopUp.dateFrom.value = new Date(clickedObjEvent.dateFrom).toLocaleDateString().split('.').reverse().join('-');

@@ -1,4 +1,3 @@
-import { setItemToStorage, getItemFromStorage } from './storage.js';
 import { popupForm, saveButton, closePopup } from './create-popup.js';
 import { editSaveHandler } from './save-event.js';
 
