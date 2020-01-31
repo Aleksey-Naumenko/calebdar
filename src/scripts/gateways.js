@@ -1,16 +1,23 @@
 export {
     getEventsFromServer,
+    getOneEventFromServer,
     createEventOnServer,
     updateEventOnServer,
     deleteEventOnServer,
+    
 };
 
-const baseUrl = 'https://crudcrud.com/api/0045a9ed891f43cd90abedb11d7737d0/events';
+const baseUrl = 'https://crudcrud.com/api/682c6138ee224f97b73fd3b4eebc032f/events';
+
 
 
 const getEventsFromServer = () => fetch(baseUrl)
     .then(response => response.json())
-    .then(eventsList => eventsList.map(event => ({ ...event, id: event._id })));
+    .then(eventsList => eventsList.map(({ _id, ...event }) => ({ ...event, id: _id })));
+
+const getOneEventFromServer = eventId => fetch(`${baseUrl}/${eventId}`)
+    .then(response => response.json())
+    .then( ({_id, ...event}) => ({...event, id: _id}) );
 
 const createEventOnServer = eventData => {
     return fetch(baseUrl, {
@@ -32,8 +39,6 @@ const updateEventOnServer = (eventId, eventData) => {
     });
 };
 
-const deleteEventOnServer = eventId => {
-    return fetch(`${baseUrl}/${eventId}`, {
+const deleteEventOnServer = eventId => fetch(`${baseUrl}/${eventId}`, {
         method: 'DELETE',
     });
-};

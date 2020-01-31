@@ -1,6 +1,5 @@
 import { currentWeek } from './render-current-week.js';
-import { getItemFromStorage } from './storage.js';
-import { getEventsFromServer } from './gateways.js';
+import { getOneEventFromServer } from './gateways.js';
 
 export {
     popup,
@@ -35,7 +34,7 @@ const formFieldPopUp = {
 
 
 
-const createPopup = async event => {
+const createPopup = event => {
     const targetEventId = event.target.getAttribute('data-id');
 
     if (!targetEventId) {
@@ -62,27 +61,24 @@ const createPopup = async event => {
         return;
     }
 
-    const clickedObjEvent = await getEventsFromServer() // get Event obj
-        .then(eventsList => eventsList
-            .find(event => targetEventId == event.id));
+    getOneEventFromServer(targetEventId)
+        .then(clickedObjEvent => {
+            formFieldPopUp.title.value = clickedObjEvent.title;
+            formFieldPopUp.dateFrom.value = new Date(clickedObjEvent.dateFrom).toLocaleDateString().split('.').reverse().join('-');
+            formFieldPopUp.dateTo.value = new Date(clickedObjEvent.dateTo).toLocaleDateString().split('.').reverse().join('-');
 
-    formFieldPopUp.title.value = clickedObjEvent.title;
-    formFieldPopUp.dateFrom.value = new Date(clickedObjEvent.dateFrom).toLocaleDateString().split('.').reverse().join('-');
-    formFieldPopUp.dateTo.value = new Date(clickedObjEvent.dateTo).toLocaleDateString().split('.').reverse().join('-');
+            formFieldPopUp.timeFrom.value = new Date(clickedObjEvent.dateFrom).toLocaleTimeString();
+            formFieldPopUp.timeTo.value = new Date(clickedObjEvent.dateTo).toLocaleTimeString();
 
-    formFieldPopUp.timeFrom.value = new Date(clickedObjEvent.dateFrom).toLocaleTimeString();
-    formFieldPopUp.timeTo.value = new Date(clickedObjEvent.dateTo).toLocaleTimeString();
+            formFieldPopUp.description.value = clickedObjEvent.description;
+            formFieldPopUp.color.value = clickedObjEvent.colorChooser;
+            formFieldPopUp.id.value = clickedObjEvent.id;
 
-    formFieldPopUp.description.value = clickedObjEvent.description;
-    formFieldPopUp.color.value = clickedObjEvent.colorChooser;
-    formFieldPopUp.id.value = clickedObjEvent.id;
+            deleteButton.style.visibility = 'visible';
+            popup.style.display = 'block';
 
-    deleteButton.style.visibility = 'visible';
-    popup.style.display = 'block';
-
-    deleteButton.dataset.id = event.target.dataset.id;
-
-    // console.log(clickedObjEvent);
+            deleteButton.dataset.id = event.target.dataset.id;
+        });
 };
 
 
